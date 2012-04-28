@@ -1,5 +1,4 @@
 // TODO: Step back from vows and review perspective (i.e. what is the golden BDD engine?)
-// TODO: async() will set an async flag on functions themselves and pass through a this.callback handler
 (function () {
 /**
  * Constructor for a Skeleton (test suite)
@@ -20,12 +19,51 @@ Skeleton.modules = {};
  * @param {String} name Name of module to add
  * @param {Function} fn Function that will process batches
  */
-Skeleton.addModule = function (name, fn) {
+function addModule(name, fn) {
   Skeleton.modules[name] = fn;
 };
+Skeleton.addModule = addModule;
+
+/**
+ * Helper method for setting an SKELETON_ASYNC flag on a function
+ * @param {Function} fn Function to set flag on
+ * @returns {Function} Same function that was passed in
+ */
+function async(fn) {
+  fn.SKELETON_ASYNC = true;
+  return fn;
+}
+Skeleton.async = async;
+
+/**
+ * Helper method to wrap test functions in 'before' and 'after' functions
+ * @param {Function|Function[]} fnArr Functions to be wrapped
+ * @param {Function} before Function prepend to each function in fnArr
+ * @param {Function} after Function to append to each function in fnArr
+ * @returns {Function|Function[]} Returns a function or function array in the same format as fnArr
+ */
+function wrap(fn, before, after) {
+  // TODO: Write me
+}
+Skeleton.wrap = wrap;
+
+/**
+ * Helper/sugar method for wrap
+ * @param {Object} suite Test suite to wrap all functions of (except topic, beforeEach, afterEach)
+ * @returns {Object} Duplicate suite object with removed .beforeEach, .afterEach and all replaced functions (except topic)
+ */
+function wrapSuite(suite) {
+  // TODO: Write me
+}
+Skeleton.wrapSuite = wrapSuite;
+
 
 // Prototypal setup for Skeleton
 Skeleton.prototype = {
+  'addModule': addModule,
+  'async': async,
+  'wrap': wrap,
+  'wrapSuite': wrapSuite,
   /**
    * Method to add test batches to this test suite
    * @param {Object} batch Batch of tests to add to this test suite
