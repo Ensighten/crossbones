@@ -1,6 +1,8 @@
 (function () {
-var loudConsole = window.console || {'log': function (msg) { alert(msg); }},
-    quietConsole = {'log': function () {}},
+function noop() {}
+
+var loudConsole = window.console || {'log': noop, 'error': function (msg) { alert(msg); }},
+    quietConsole = {'log': noop, 'error': noop},
     console = loudConsole;
 
 // Set up a test function for quicker evaluation
@@ -8,7 +10,7 @@ function test(name, fn) {
   try {
     fn();
   } catch (e) {
-    console.log('TEST FAILED: ', name);
+    console.error('TEST FAILED: ', name);
     throw e;
   }
   console.log('TEST PASSED: ', name);
@@ -30,7 +32,7 @@ console = loudConsole;
 
 // If the test did not work, report so
 if (testWasRun !== true) {
-  console.log('Test was not run');
+  console.error('Test was not run');
   throw new Error('Test function is broken');
 }
 
@@ -54,7 +56,7 @@ console = loudConsole;
 
 // If the test did not work, report so
 if (testWorked !== true) {
-  console.log('Test does not capture errors');
+  console.error('Test does not capture errors');
   throw new Error('Test function is broken');
 }
 
@@ -69,7 +71,7 @@ function assert(bool) {
 try {
   assert(true);
 } catch (e) {
-  console.log('Assert threw an error for true');
+  console.noop('Assert threw an error for true');
   throw e;
 }
 
@@ -80,11 +82,13 @@ try {
   testPassed = true;
 }
 if (testPassed !== true) {
-  console.log('Assert did not throw an error for false');
+  console.noop('Assert did not throw an error for false');
   throw new Error('Assert did not throw an error for false');
 }
 
 // Begin testing Skeleton
+console.log('BEGIN TESTING: Skeleton basics');
+
 test('Skeleton is a constructor', function () {
   assert(typeof Skeleton === 'function');
   var suite = new Skeleton();
@@ -146,6 +150,8 @@ test('Skeleton can save modules and re-use them for export', function () {
   // Assert that the test engine was used
   assert(usedMyTestEngine);
 });
+
+console.log('END TESTING: Skeleton basics');
 
 // Final message
 console.log('ALL TESTS COMPLETED AND PASSING');
