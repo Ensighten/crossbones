@@ -41,22 +41,24 @@ Skeleton.prototype = {
   },
   /**
    * Run method for a test suite (currently only supporting Mocha)
-   * @param {Function|String} engine If a function, Skeleton will process via it. Otherwise, Skeleton will retrieve the engine from its modules.
+   * @param {Function|String} engineName If a function, Skeleton will process via it. Otherwise, Skeleton will retrieve the engine from its modules.
    * @returns {Mixed} Returns result of engine
    */
-  'exportTo': function (engine) {
-      // If the engine is not a function, retrieve it from the modules
-      if (typeof engine !== 'function') {
-        engine = Skeleton.modules[engineName];
-      }
+  'exportTo': function (engineName) {
+    var engine = engineName;
 
-      // If the engine is not a function, throw an error
-      if (typeof engine !== 'function') {
-        throw new Error('Test engine was not found: ' + engineName);
-      }
+    // If the engine is not a function, retrieve it from the modules
+    if (typeof engine !== 'function') {
+      engine = Skeleton.modules[engineName];
+    }
 
-      // Run and return the engine in the context of this with batches as the first parameter
-      return engine.call(this, this.batches);
+    // If the engine is not a function, throw an error
+    if (typeof engine !== 'function') {
+      throw new Error('Test engine was not found: ' + engineName);
+    }
+
+    // Run and return the engine in the context of this with batches as the first parameter
+    return engine.call(this, this.batches);
    }
 };
 
