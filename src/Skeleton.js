@@ -6,6 +6,8 @@
  * @param {String} name Name to call this test suite (may not apply to all BDD)
  */
 function Skeleton(name) {
+  // Fallback name
+  name = name || '';
   this.name = name;
   this.batches = [];
 }
