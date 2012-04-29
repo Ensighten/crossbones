@@ -37,14 +37,42 @@ Skeleton.async = async;
 
 /**
  * Helper method to wrap test functions in 'before' and 'after' functions
- * @param {Function|Function[]} fnArr Functions to be wrapped
- * @param {Function} before Function prepend to each function in fnArr
- * @param {Function} after Function to append to each function in fnArr
- * @returns {Function|Function[]} Returns a function or function array in the same format as fnArr
+ * @param {Function} fn Function to be wrapped
+ * @param {Function|null} before Function to prepend to fn. If falsy, this will be skipped
+ * @param {Function} [after] Function to append to fn. If falsy, this will be skipped
+ * @returns {Function} Wrapped function
  */
 function wrap(fn, before, after) {
-  // TODO: Write me
+  // Fallback before and after
+  before = before || noop;
+  after = after || noop;
+
+  // Wrap fn
+  var retFn = function () {
+    // Collect the arguments for passing
+    var args = [].slice.call(arguments);
+
+    // Run the items in order and capture the return value
+    before.apply(this, args);
+    var retVal = fn.apply(this, args);
+    after.apply(this, args);
+
+    // Return the return value;
+    return retVal;
+  };
+
+  // Copy over any flags on the original fn (e.g. SKELETON_ASYNC)
+  var key;
+  for (key in fn) {
+    if (fn.hasOwnProperty(key)) {
+      retFn[key] = fn[key];
+    }
+  }
+
+  // Return the refFn
+  return refFn;
 }
+// TODO: Test if I begin using
 Skeleton.wrap = wrap;
 
 /**
@@ -52,11 +80,37 @@ Skeleton.wrap = wrap;
  * @param {Object} suite Test suite to wrap all functions of (except topic, beforeEach, afterEach)
  * @returns {Object} Duplicate suite object with removed .beforeEach, .afterEach and all replaced functions (except topic)
  */
+// TODO: Test if I begin using
 function wrapSuite(suite) {
-  // TODO: Write me
+  var retObj = {},
+      reservedRegexp = /topic|beforeEach|afterEach/,
+      key,
+      context,
+      beforeFn = suite.beforeEach,
+      afterFn = suite.afterEach;
+
+  // Iterate the keys in the suite
+  for (key in suite) {
+    if (suite.hasOwnProperty(key) && !reservedRegexp.test(key)) {
+      context = suite[key];
+
+      // If the context is a function, wrap it
+      if (typeof context === 'function') {
+        retObj[key] = wrap(context, beforeFn, afterFn);
+      } else {
+      // Otherwise, copy it
+        retObj[key] = context;
+      }
+    }
+  }
+
+  // Copy over the topic
+  retObj.topic = suite.topic;
+
+  // Return the copied suite
+  return retObj;
 }
 Skeleton.wrapSuite = wrapSuite;
-
 
 // Prototypal setup for Skeleton
 Skeleton.prototype = {
