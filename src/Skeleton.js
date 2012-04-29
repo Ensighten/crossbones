@@ -77,47 +77,47 @@ Skeleton.wrap = wrap;
 
 /**
  * Helper/sugar method for wrap
- * @param {Object} suite Test suite to wrap all functions of (except topic, beforeEach, afterEach)
- * @returns {Object} Duplicate suite object with removed .beforeEach, .afterEach and all replaced functions (except topic)
+ * @param {Object} context Context to wrap all functions of (except topic, beforeEach, afterEach)
+ * @returns {Object} Duplicate context object with removed .beforeEach, .afterEach and all replaced functions (except topic)
  */
 // TODO: Test if I begin using
-function wrapSuite(suite) {
+function wrapContext(context) {
   var retObj = {},
-      reservedRegexp = /topic|beforeEach|afterEach/,
+      reservedRegexp = /^(topic|beforeEach|afterEach)$/,
       key,
-      context,
-      beforeFn = suite.beforeEach,
-      afterFn = suite.afterEach;
+      subcontext,
+      beforeFn = context.beforeEach,
+      afterFn = context.afterEach;
 
-  // Iterate the keys in the suite
-  for (key in suite) {
-    if (suite.hasOwnProperty(key) && !reservedRegexp.test(key)) {
-      context = suite[key];
+  // Iterate the keys in the context
+  for (key in context) {
+    if (context.hasOwnProperty(key) && !reservedRegexp.test(key)) {
+      subcontext = context[key];
 
-      // If the context is a function, wrap it
-      if (typeof context === 'function') {
-        retObj[key] = wrap(context, beforeFn, afterFn);
+      // If the subcontext is a function, wrap it
+      if (typeof subcontext === 'function') {
+        retObj[key] = wrap(subcontext, beforeFn, afterFn);
       } else {
       // Otherwise, copy it
-        retObj[key] = context;
+        retObj[key] = subcontext;
       }
     }
   }
 
   // Copy over the topic
-  retObj.topic = suite.topic;
+  retObj.topic = context.topic;
 
-  // Return the copied suite
+  // Return the copied context
   return retObj;
 }
-Skeleton.wrapSuite = wrapSuite;
+Skeleton.wrapContext = wrapContext;
 
 // Prototypal setup for Skeleton
 Skeleton.prototype = {
   'addModule': addModule,
   'async': async,
   'wrap': wrap,
-  'wrapSuite': wrapSuite,
+  'wrapContext': wrapContext,
   /**
    * Method to add test batches to this test suite
    * @param {Object} batch Batch of tests to add to this test suite
@@ -151,7 +151,7 @@ Skeleton.prototype = {
 
     // Run and return the engine in the context of this with batches as the first parameter
     return engine.call(this, this.batches);
-   }
+  }
 };
 
 // Export to global scope

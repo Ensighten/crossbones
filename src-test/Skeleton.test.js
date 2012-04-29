@@ -1,90 +1,6 @@
 (function () {
-function noop() {}
-
-var loudConsole = window.console || {'log': noop, 'error': function (msg) { alert(msg); }},
-    quietConsole = {'log': noop, 'error': noop},
-    console = loudConsole;
-
-// Set up a test function for quicker evaluation
-function test(name, fn) {
-  try {
-    fn();
-  } catch (e) {
-    console.error('TEST FAILED: ', name);
-    throw e;
-  }
-  console.log('TEST PASSED: ', name);
-}
-
-/*** TESTING TEST (Part I) ***/
-
-// Silence the console for the next run
-console = quietConsole;
-
-// Passing test for test
-var testWasRun = false;
-test('Testing test', function () {
-  testWasRun = true;
-});
-
-// Unmute the console and report back if anything went awry
-console = loudConsole;
-
-// If the test did not work, report so
-if (testWasRun !== true) {
-  console.error('Test was not run');
-  throw new Error('Test function is broken');
-}
-
-/*** TESTING TEST (Part II) ***/
-
-// Silence the console for the next run
-console = quietConsole;
-
-// Testing out the test function
-var testWorked = true;
-try {
-  test('Testing test', function () {
-    throw new Error('pass');
-  });
-  testWorked = false;
-} catch (e) {
-}
-
-// Unmute the console and report back if anything went awry
-console = loudConsole;
-
-// If the test did not work, report so
-if (testWorked !== true) {
-  console.error('Test does not capture errors');
-  throw new Error('Test function is broken');
-}
-
-/*** TESTING ASSERT ***/
-
-function assert(bool) {
-  if (bool !== true) {
-    throw new Error('Assert expected: true, received: ' + bool);
-  }
-}
-
-try {
-  assert(true);
-} catch (e) {
-  console.noop('Assert threw an error for true');
-  throw e;
-}
-
-var testPassed = false;
-try {
-  assert(false);
-} catch (e) {
-  testPassed = true;
-}
-if (testPassed !== true) {
-  console.noop('Assert did not throw an error for false');
-  throw new Error('Assert did not throw an error for false');
-}
+var test = Splat.test,
+    assert = Splat.assert;
 
 // Begin testing Skeleton
 console.log('BEGIN TESTING: Skeleton basics');
@@ -152,6 +68,22 @@ test('Skeleton can save modules and re-use them for export', function () {
 });
 
 console.log('END TESTING: Skeleton basics');
+console.log('BEGIN TESTING: Skeleton helpers');
+
+
+test('Skeleton can set an async flag on a function', function () {
+  var myFn = function () {},
+      myAsyncFn = Skeleton.async(myFn);
+  assert(myAsyncFn.SKELETON_ASYNC);
+  assert(myFn === myAsyncFn);
+});
+
+// TODO: Test these
+  // 'can wrap a function with a before and after method': '',
+  // 'can wrap a context with beforeEach and afterEach methods': ''
+  // // TODO: beforeAll, afterAll methods -- beforeAll is good with topic, but afterAll has no location =/
+
+console.log('END TESTING: Skeleton helpers');
 
 // Final message
 console.log('ALL TESTS COMPLETED AND PASSING');
