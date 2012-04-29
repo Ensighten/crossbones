@@ -6,20 +6,20 @@ function noop() {}
  */
 var console = window.console || {'log': noop, 'error': function (msg) { alert(msg); }},
     Splat = {
-      'muted': false,
+      'isNotMuted': true,
       'mute': function () {
-        this.muted = true;
+        Splat.isNotMuted = false;
       },
       'unmute': function () {
-        this.muted = false;
+        Splat.isNotMuted = true;
       },
       'log': function (msg) {
-        if (!this.muted) {
+        if (Splat.isNotMuted) {
           console.log(msg);
         }
       },
       'error': function (msg) {
-        if (!this.muted) {
+        if (Splat.isNotMuted) {
           console.error(msg);
         }
       },
