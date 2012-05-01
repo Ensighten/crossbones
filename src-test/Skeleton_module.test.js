@@ -1,25 +1,181 @@
-{
-  'Module is a function',
-  'supports multiple batches?'
-  'supports before',
-  'supports after',
-  // Is there a beforeEach, afterEach that is somehow different than before, after
-  'supports async topics',
-  'supports async tests',
+(function () {
+function autoCallback(fn) {
+  fn();
 }
 
-// For browser testing frameworks
-{
-  'Supports writing to the DOM'
-  'Supports triggering DOM events'
+// Localize the splat test functions
+var test = Splat.test,
+    assert = Splat.assert;
+
+// Create a function to test modules
+function testModule(moduleName, runner) {
+  // Fallback test runner
+  runner = runner || autoCallback;
+
+  test(moduleName + ' can run a single batch', function () {
+    var hasRun = false,
+        suite = new Skeleton;
+
+    // Generate a simple batch
+    suite.addBatch({
+      'single batch': {
+        'runs': function () {
+          hasRun = true;
+        }
+      }
+    });
+
+    // Export and run the test
+    suite.exportTo(moduleName);
+    runner(function () {
+      // Make sure the test ran the batch
+      assert(hasRun);
+    });
+  });
+
+  test(moduleName + ' supports multiple batches', function () {
+    var hasRun1 = false,
+        hasRun2 = false,
+        suite = new Skeleton;
+
+    suite.addBatch({
+      'batch1': {
+        'runs': function () {
+          hasRun1 = true;
+        }
+      }
+    });
+
+    suite.addBatch({
+      'batch2': {
+        'runs': function () {
+          hasRun2 = true;
+        }
+      }
+    });
+
+    suite.exportTo(moduleName);
+    runner(function () {
+      assert(hasRun1);
+      assert(hasRun2);
+    });
+  });
+
+  test(moduleName + ' supports beforeEach', function () {
+    var beforeBool = true,
+        runCount = 0,
+        suite = new Skeleton;
+
+    suite.addBatch({
+      'eachTest': {
+        'beforeEach': function () {
+          if (beforeBool || runCount > 0) {
+            runCount += 1;
+          }
+        },
+        'test1': function () {
+          beforeBool = false;
+          var a = 1 + 1;
+        },
+        'test2': function () {
+          beforeBool = false;
+          var b = 1 + 1;
+        }
+      }
+    });
+
+    suite.exportTo(moduleName);
+    runner(function () {
+      assert(runCount === 2);
+    });
+  });
+
+  test(moduleName + ' supports afterEach', function () {
+    var afterBool = false,
+        runCount = 0,
+        suite = new Skeleton;
+
+    suite.addBatch({
+      'eachTest': {
+        'afterEach': function () {
+          if (afterBool) {
+            runCount += 1;
+          }
+        },
+        'test1': function () {
+          var a = 1 + 1;
+          afterBool = true;
+        },
+        'test2': function () {
+          var b = 1 + 1;
+          afterBool = true;
+        }
+      }
+    });
+
+    suite.exportTo(moduleName);
+    runner(function () {
+      setTimeout(function () {
+        assert(runCount === 2);
+      }, 20);
+    });
+  });
+  
+  
+  // TODO: Get this working
+  // test(moduleName + ' supports async topics', function () {
+    // var called = false,
+        // suite = new Skeleton;
+
+    // suite.addBatch({
+      // 'async': {
+        // topic: Skeleton.async(function () {
+          // var callback = this.callback;
+          // setTimeout(function () {
+            // called = true;
+            // callback();
+          // }, 100);
+        // }),
+        // 'test1': function () {
+          // assert(called);
+        // }
+      // }
+    // });
+
+    // suite.exportTo(moduleName);
+    // runner(function () {
+      // assert(called);
+    // });
+  // });
+  
+  test(moduleName + ' supports async tests', function () {
+    var called = false,
+        suite = new Skeleton;
+
+    suite.addBatch({
+      'async': {
+        'test1': Skeleton.async(function () {
+          var callback = this.callback;
+          assert(typeof callback === 'function');
+          // TODO: This does not feel like it is testing anything...
+          setTimeout(function () {
+            called = true;
+            assert(true);
+            callback();
+          }, 100);
+        })
+      }
+    });
+
+    suite.exportTo(moduleName);
+    runner(function () {
+      setTimeout(function () {
+        assert(called);
+      }, 200);
+    });
+  });
 }
 
-// For non-heartbeat browser testing frameworks
-{
-  'Supports testing on different webpages'
-}
-
-// For instrumentable browser testing frameworks
-{
-  'Supports instrumentation'
-}
+// Expose testModule to the window scope
+window.testModule = testModule;
+}());

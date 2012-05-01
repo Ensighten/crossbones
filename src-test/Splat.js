@@ -4,7 +4,8 @@ function noop() {}
 /**
  * Splat: Super-simple flat testing framework
  */
-var console = window.console || {'log': noop, 'error': function (msg) { alert(msg); }},
+var alert = window.alert || noop,
+    console = window.console || { 'log': noop, 'error': function (msg) { alert(msg); } },
     Splat = {
       'isNotMuted': true,
       'mute': function () {
@@ -13,12 +14,16 @@ var console = window.console || {'log': noop, 'error': function (msg) { alert(ms
       'unmute': function () {
         Splat.isNotMuted = true;
       },
-      'log': function (msg) {
+      'log': function () {
+        var args = [].slice.call(arguments),
+            msg = args.join('');
         if (Splat.isNotMuted) {
           console.log(msg);
         }
       },
-      'error': function (msg) {
+      'error': function () {
+        var args = [].slice.call(arguments),
+            msg = args.join('');
         if (Splat.isNotMuted) {
           console.error(msg);
         }

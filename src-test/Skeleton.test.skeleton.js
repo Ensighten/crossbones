@@ -25,3 +25,5 @@
     // TODO: beforeAll, afterAll methods -- beforeAll is good with topic, but afterAll has no location =/
   }
 }
+
+// If the method is asynchronous, wrap this.callback with an after wrapper? -- but who sets this.callback? isn't that the responsibility of the framework?

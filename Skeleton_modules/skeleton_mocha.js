@@ -18,7 +18,7 @@ Skeleton.addModule('Mocha', function (batches) {
       if (batch.hasOwnProperty(description)) {
         (function (description) {
           var context = batch[description];
-          
+
           // If the context is an object, describe it
           if (typeof context === 'object') {
             describe(description, function () {
@@ -35,7 +35,6 @@ Skeleton.addModule('Mocha', function (batches) {
     topicChain = topicChain || [];
 
     // If the context has a topic, grab it
-    // TODO: Handle before, after
     var topicFn = context.topic,
         topic;
     if (topicFn !== undefined) {
@@ -53,6 +52,13 @@ Skeleton.addModule('Mocha', function (batches) {
           var item = context[description],
               itemType = typeof item;
 
+          // If the description is beforeEach, execute it as such
+          if (description === 'beforeEach') {
+            return beforeEach(item);
+          } else if (description === 'afterEach') {
+            return afterEach(item);
+          }
+
           // If the item is an object, it is a sub-context
           if (itemType === 'object') {
             // Describe and recurse the sub-context
@@ -61,10 +67,17 @@ Skeleton.addModule('Mocha', function (batches) {
             });
           } else if (itemType === 'function') {
           // Otherwise, if it is a function, it is a vow
-            // Run the vow as an 'it'
-            it(description, function () {
-              item(firstTopic);
-            });
+            // If the item is async, handle it as such
+            if (item.SKELETON_ASYNC === true) {
+              it(description, function (done) {
+                item.call({'callback': done}, firstTopic);
+              });
+            } else {
+            // Otherwise, evaluate it normally
+              it(description, function () {
+                item(firstTopic);
+              });
+            }
           }
           // Otherwise, it is a promise
             // Mocha does not support promises

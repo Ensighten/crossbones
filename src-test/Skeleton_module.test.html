@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <title>Skeleton Module Test Page</title>
+    <!-- Mocha items -->
+    <script src="https://raw.github.com/visionmedia/mocha/master/mocha.js"></script>
+    <script>
+      mocha.setup('bdd');
+    </script>
+    <!-- EOF: Mocha items -->
+  </head>
+  <body>
+    <script src="../src/Skeleton.js"></script>
+    <script src="Splat.js"></script>
+    <script src="Skeleton_module.test.js"></script>
+    
+    <!-- Mocha items -->
+    <div id="mocha"></div>
+    <script src="../Skeleton_modules/skeleton_mocha.js"></script>
+    <script>
+      window.onload = function () {
+        testModule('Mocha', function (callback) {
+          var runner = mocha.run(callback);
+          runner.globals(['FileWatcher', 'ResourceCollector', 'alert', 'prompt', 'confirm']);
+        });
+      };
+    </script>    
+    <!-- EOF: Mocha items -->
+
+    <script src="https://raw.github.com/twolfson/File-Watcher/master/src/watcher.js"></script>
+    <script src="https://raw.github.com/twolfson/Resource-Collector/master/src/collector.js"></script>
+    <script>
+        (function () {
+          if (location.hostname === 'localhost') {
+             var watcher = new FileWatcher(),
+                 resources = ResourceCollector.collect();
+             watcher.addListener(function () {
+               location.reload();
+             });
+             watcher.watch(resources);
+          }
+        }());
+    </script>
+  </body>
+</html>
