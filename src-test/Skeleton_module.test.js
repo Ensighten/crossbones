@@ -157,6 +157,12 @@ function testModule(moduleName, runner) {
 
     suite.addBatch({
       'async': {
+        // Once the asynchronous test has run, assert via a second test
+        'afterEach': function () {
+          if (called1 === true) {
+            called2 = true;
+          }
+        },
         'test1': Skeleton.async(function () {
           var callback = this.callback;
           assert(typeof callback === 'function');
@@ -169,21 +175,6 @@ function testModule(moduleName, runner) {
       }
     });
 
-    // Once the asynchronous test has run, assert via a second test
-    // TODO: If this does not work, use .afterEach
-    suite.addBatch({
-      'after sync': {
-        'test2': function () {
-          console.log('z');
-          if (called1 === true) {
-          console.log('hm');
-            called2 = true;
-          }
-        }
-      }
-    });
-
-
     // Export the two suites
     suite.exportTo(moduleName);
 
@@ -191,17 +182,13 @@ function testModule(moduleName, runner) {
     runner(function () {
       // Make sure that after sync has not been called in 10ms
       setTimeout(function () {
-        console.log('a');
         assert(called2 === false);
-        console.log('b');
       }, 10);
 
       // But after the async test, everything is good
       setTimeout(function () {
-        console.log('c', called1, called2);
         assert(called1);
         assert(called2);
-        console.log('d');
       }, 300);
     });
   });
