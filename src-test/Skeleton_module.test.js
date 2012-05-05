@@ -120,8 +120,8 @@ function testModule(moduleName, runner) {
       }, 20);
     });
   });
-  
-  
+
+
   // TODO: Get this working
   // test(moduleName + ' supports async topics', function () {
     // var called = false,
@@ -147,9 +147,12 @@ function testModule(moduleName, runner) {
       // assert(called);
     // });
   // });
-  
+
+  // TODO: Handle .async .beforeEach and .afterEach in helper method
+
   test(moduleName + ' supports async tests', function () {
-    var called = false,
+    var called1 = false,
+        called2 = false,
         suite = new Skeleton;
 
     suite.addBatch({
@@ -157,21 +160,49 @@ function testModule(moduleName, runner) {
         'test1': Skeleton.async(function () {
           var callback = this.callback;
           assert(typeof callback === 'function');
-          // TODO: This does not feel like it is testing anything...
+
           setTimeout(function () {
-            called = true;
-            assert(true);
+            called1 = true;
             callback();
           }, 100);
         })
       }
     });
 
+    // Once the asynchronous test has run, assert via a second test
+    // TODO: If this does not work, use .afterEach
+    suite.addBatch({
+      'after sync': {
+        'test2': function () {
+          console.log('z');
+          if (called1 === true) {
+          console.log('hm');
+            called2 = true;
+          }
+        }
+      }
+    });
+
+
+    // Export the two suites
     suite.exportTo(moduleName);
+
+    // Assert that the tests are run in order (even when async)
     runner(function () {
+      // Make sure that after sync has not been called in 10ms
       setTimeout(function () {
-        assert(called);
-      }, 200);
+        console.log('a');
+        assert(called2 === false);
+        console.log('b');
+      }, 10);
+
+      // But after the async test, everything is good
+      setTimeout(function () {
+        console.log('c', called1, called2);
+        assert(called1);
+        assert(called2);
+        console.log('d');
+      }, 300);
     });
   });
 }
