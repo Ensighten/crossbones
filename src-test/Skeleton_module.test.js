@@ -124,32 +124,37 @@ function testModule(moduleName, runner, finalCallback) {
 
 
   // TODO: Get this working
-  // test(moduleName + ' supports async topics', function () {
-    // var called = false,
-        // suite = new Skeleton;
+  testAsync(moduleName + ' supports async topics', function () {
+    var called = false,
+        suite = new Skeleton;
 
-    // suite.addBatch({
-      // 'async': {
-        // topic: Skeleton.async(function () {
-          // var callback = this.callback;
-          // setTimeout(function () {
-            // called = true;
-            // callback();
-          // }, 100);
-        // }),
-        // 'test1': function () {
-          // assert(called);
-        // }
-      // }
-    // });
+    suite.addBatch({
+      'async': {
+        topic: Skeleton.async(function () {
+          var callback = this.callback;
+          setTimeout(function () {
+            called = true;
+            callback();
+          }, 100);
+        }),
+        'test1': function () {
+          assert(called);
+        }
+      }
+    });
 
-    // suite.exportTo(moduleName);
-    // runner(function () {
-      // assert(called);
-    // });
-  // });
+    suite.exportTo(moduleName);
 
-  // TODO: Handle .async .beforeEach and .afterEach in helper method
+    var callback = this.callback;
+    runner(function () {
+      assert(called);
+      callback();
+    });
+  }, afterAsyncTopics);
+
+  function afterAsyncTopics() {
+
+  // TODO: Handle .async .beforeEach and .afterEach in helper method (.before -> test -> .after -- beware of race condition in async test and .after)
 
   testAsync(moduleName + ' supports async tests', function () {
     var called1 = false,
@@ -182,25 +187,22 @@ function testModule(moduleName, runner, finalCallback) {
     // Assert that the tests are run in order (even when async)
     var callback = this.callback;
     runner(function () {
-      // Make sure that after sync has not been called in 10ms
-      setTimeout(function () {
-        assert(called2 === false);
-      }, 10);
-
-      // But after the async test, everything is good
+      // Assert that called2 occurs after called1
       setTimeout(function () {
         assert(called1);
         assert(called2);
-        
+
         // Callback now that we are done
         callback();
       }, 300);
     });
-  }, next);
-  
-  function next() {
+  }, afterAsyncTests);
+
+  function afterAsyncTests() {
     // Callback now that we are done
     finalCallback();
+  }
+
   }
 }
 

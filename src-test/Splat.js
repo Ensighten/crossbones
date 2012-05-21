@@ -38,12 +38,17 @@ var alert = window.alert || noop,
         Splat.log('TEST PASSED: ', name);
       },
       'testAsync': function (name, fn, callback) {
-        var asyncThis = {
-          'callback': function () {
-            Splat.log('TEST PASSED: ', name);
-            callback();
-          }
-        };
+        var errTimeout = setTimeout(function () {
+              Splat.error('TEST TIMED OUT: ', name);
+              throw new Error('Test timed out: ' + name);
+            }, 2000),
+            asyncThis = {
+              'callback': function () {
+                clearTimeout(errTimeout);
+                Splat.log('TEST PASSED: ', name);
+                callback();
+              }
+            };
 
         try {
           fn.call(asyncThis);
