@@ -30,7 +30,7 @@ var alert = window.alert || noop,
       },
       'test': function (name, fn) {
         try {
-          fn.call(this);
+          fn();
         } catch (e) {
           Splat.error('TEST FAILED: ', name);
           throw e;
@@ -38,8 +38,19 @@ var alert = window.alert || noop,
         Splat.log('TEST PASSED: ', name);
       },
       'testAsync': function (name, fn, callback) {
-        var asyncThis = {'callback': callback};
-        Splat.test.call(asyncThis, name, fn);
+        var asyncThis = {
+          'callback': function () {
+            Splat.log('TEST PASSED: ', name);
+            callback();
+          }
+        };
+
+        try {
+          fn.call(asyncThis);
+        } catch (e) {
+          Splat.error('TEST FAILED: ', name);
+          throw e;
+        }
       },
       'assert': function (bool) {
         if (bool !== true) {
@@ -105,6 +116,19 @@ if (testPassed !== true) {
   throw new Error('Assert did not throw an error for false');
 }
 
+/*** TESTING ASYNC ***/
+var asyncTimeout = setTimeout(function () {
+  console.error('Async callback was not called');
+  throw new Error('Async callback was not called');
+}, 1000);
+Splat.testAsync('Async test', function () {
+  var callback = this.callback;
+  setTimeout(callback, 100);
+}, function () {
+  clearTimeout(asyncTimeout);
+});
+
+/*** END OF TESTING ***/
 // Log the end of Splat tests
 console.log('Splat successfully tested');
 

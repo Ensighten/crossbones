@@ -21,6 +21,8 @@
         testModule('Mocha', function (callback) {
           var runner = mocha.run(callback);
           runner.globals(['FileWatcher', 'ResourceCollector', 'alert', 'prompt', 'confirm']);
+        }, function () {
+          console.log('Mocha passed all tests');
         });
       };
     </script>    

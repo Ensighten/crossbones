@@ -5,10 +5,11 @@ function autoCallback(fn) {
 
 // Localize the splat test functions
 var test = Splat.test,
+    testAsync = Splat.testAsync,
     assert = Splat.assert;
 
 // Create a function to test modules
-function testModule(moduleName, runner) {
+function testModule(moduleName, runner, finalCallback) {
   // Fallback test runner
   runner = runner || autoCallback;
 
@@ -150,7 +151,7 @@ function testModule(moduleName, runner) {
 
   // TODO: Handle .async .beforeEach and .afterEach in helper method
 
-  test(moduleName + ' supports async tests', function () {
+  testAsync(moduleName + ' supports async tests', function () {
     var called1 = false,
         called2 = false,
         suite = new Skeleton;
@@ -179,6 +180,7 @@ function testModule(moduleName, runner) {
     suite.exportTo(moduleName);
 
     // Assert that the tests are run in order (even when async)
+    var callback = this.callback;
     runner(function () {
       // Make sure that after sync has not been called in 10ms
       setTimeout(function () {
@@ -189,9 +191,17 @@ function testModule(moduleName, runner) {
       setTimeout(function () {
         assert(called1);
         assert(called2);
+        
+        // Callback now that we are done
+        callback();
       }, 300);
     });
-  });
+  }, next);
+  
+  function next() {
+    // Callback now that we are done
+    finalCallback();
+  }
 }
 
 // Expose testModule to the window scope
