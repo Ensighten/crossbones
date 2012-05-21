@@ -30,12 +30,28 @@ var alert = window.alert || noop,
       },
       'test': function (name, fn) {
         try {
-          fn();
+          fn.call(this);
         } catch (e) {
           Splat.error('TEST FAILED: ', name);
           throw e;
         }
         Splat.log('TEST PASSED: ', name);
+      },
+      'testAsync': function (name, fn, callback) {
+        // Set up a timeout for long-running tests
+        var errTimeout = setTimeout(function () {
+              Splat.error('TEST TIMED OUT: ', name);
+              throw new Error('Test timed out: ' + name);
+            }, 1000),
+        // Set up a that for calling back
+            that = {'callback': function () {
+              // Remove the long running test timeout
+              clearTimeout(errTimeout);
+
+              // Callback
+              callback();
+            }};
+        Splat.test.call({'callback': callback}, name, fn);
       },
       'assert': function (bool) {
         if (bool !== true) {
@@ -86,7 +102,7 @@ if (testWorked !== true) {
 try {
   assert(true);
 } catch (e) {
-  console.log('Assert threw an error for true');
+  console.error('Assert threw an error for true');
   throw e;
 }
 
@@ -97,12 +113,12 @@ try {
   testPassed = true;
 }
 if (testPassed !== true) {
-  console.log('Assert did not throw an error for false');
+  console.error('Assert did not throw an error for false');
   throw new Error('Assert did not throw an error for false');
 }
 
 // Log the end of Splat tests
-// console.log('Splat successfully tested');
+console.log('Splat successfully tested');
 
 // Unmute Splat
 Splat.unmute();
