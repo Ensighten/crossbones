@@ -38,20 +38,8 @@ var alert = window.alert || noop,
         Splat.log('TEST PASSED: ', name);
       },
       'testAsync': function (name, fn, callback) {
-        // Set up a timeout for long-running tests
-        var errTimeout = setTimeout(function () {
-              Splat.error('TEST TIMED OUT: ', name);
-              throw new Error('Test timed out: ' + name);
-            }, 1000),
-        // Set up a that for calling back
-            that = {'callback': function () {
-              // Remove the long running test timeout
-              clearTimeout(errTimeout);
-
-              // Callback
-              callback();
-            }};
-        Splat.test.call({'callback': callback}, name, fn);
+        var asyncThis = {'callback': callback};
+        Splat.test.call(asyncThis, name, fn);
       },
       'assert': function (bool) {
         if (bool !== true) {
