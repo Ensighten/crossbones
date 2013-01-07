@@ -21,7 +21,7 @@ Skeleton.modules = {};
  */
 function addModule(name, fn) {
   Skeleton.modules[name] = fn;
-};
+}
 Skeleton.addModule = addModule;
 
 /**
@@ -42,6 +42,7 @@ Skeleton.async = async;
  * @param {Function} [after] Function to append to fn. If falsy, this will be skipped
  * @returns {Function} Wrapped function
  */
+function noop() {}
 function wrap(fn, before, after) {
   // Fallback before and after
   before = before || noop;
@@ -70,7 +71,7 @@ function wrap(fn, before, after) {
   }
 
   // Return the refFn
-  return refFn;
+  return retFn;
 }
 // TODO: Test if I begin using
 Skeleton.wrap = wrap;

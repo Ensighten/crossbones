@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    pkg: '<json:crossbones.jquery.json>',
+    pkg: '<json:package.json>',
     // qunit: {
     //   files: ['test/**/*.html']
     // },
